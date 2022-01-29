@@ -227,7 +227,7 @@
         if (avatarPissImage.complete) {
           let avatarWidth = Math.round(avatarPissImage.width / 24);
           let avatarHeight = avatarPissImage.height;
-          ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight, 2);
+          ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight);
           ctx.drawImage(avatarPissImage, (Math.floor(user.piss) - 1) * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
           user.piss += 0.2;
           if (Math.floor(user.piss) == 24)
