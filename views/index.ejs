@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    .section {
+      display: none;
+      text-align: center;
+    }
+
+    .section.show {
+      display: block;
+    }
+
+    .section#login {
+      padding: 160px;
+      background-image: url(/leaf.png);
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    #users {
+      float: right;
+    }
+
+    .user {
+      padding: 5px 12px;
+      border-radius: 10px;
+      background-color: #FFF;
+      box-shadow: 0px 2px 5px -3px rgba(0, 0, 0, .5);
+    }
+
+    .user.painter {
+      border: 2px solid #FF0000;
+    }
+
+    input[type=text] {
+      border: 1px solid #AAA;
+      padding: 5px 10px;
+      font-size: 15px;
+    }
+
+    #messageInput {
+      padding: 5px 10px;
+      font-size: 15px;
+      position: relative;
+      top: -47px;
+      width: 330px;
+      left: -13px;
+      border: none;
+      background-color: transparent;
+      outline: none;
+    }
+
+    body {
+      background-color: #AAD93D;
+      font-family: Arial;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="section show" id="login">
+    <input id="nickname" type="text" placeholder="שם" /><br />
+    <button id="loginButt" onclick="login()" disabled>התחברות</button>
+  </div>
+  <div class="section" id="loading">
+    טוען...
+  </div>
+  <div class="section" id="game">
+    <div id="users"></div>
+    <div id="paint">
+      <canvas id="canvas" width="960" height="600"></canvas><br />
+      <input id="messageInput" type="text" placeholder="הקש ENTER לשליחה..." />
+    </div>
+  </div>
+
+  <script>
+    let socket = io();
+    let users = {};
+    let pisses = [];
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
+    let messageInput = document.getElementById('messageInput');
+
+    let bgImage = new Image();
+    bgImage.src = 'jungle.png';
+
+    let overlayImage = new Image();
+    overlayImage.src = 'overlay.png';
+
+    let avatarImage = new Image();
+    avatarImage.src = 'avatar.png';
+
+    let avatarPissImage = new Image();
+    avatarPissImage.src = 'piss.png';
+
+    let bubbleImage = new Image();
+    bubbleImage.src = 'bubble.png';
+
+    let bubbleRedImage = new Image();
+    bubbleRedImage.src = 'bubbleRed.png';
+
+    let bubbleSayarImage = new Image();
+    bubbleSayarImage.src = 'bubbleSayar.png';
+
+    let chatImage = new Image();
+    chatImage.src = 'chat.png';
+
+    let starImage = new Image();
+    starImage.src = 'star.png';
+
+    let stand = new Image();
+    stand.src = 'stand.png';
+
+    socket.on('connect', () => {
+      document.getElementById('loginButt').removeAttribute('disabled');
+    });
+    socket.on('login', usersList => {
+      document.getElementById('loading').classList.remove('show');
+      document.getElementById('game').classList.add('show');
+      users = usersList;
+      draw();
+    });
+    socket.on('user-connected', (clientId, client) => {
+      users[clientId] = client;
+      users[clientId].destX = client.x;
+      users[clientId].destY = client.y;
+    });
+    socket.on('user-updated', (clientId, client) => {
+      if (users[clientId] !== undefined) {
+        users[clientId].name = client.name;
+        users[clientId].destX = client.x;
+        users[clientId].destY = client.y;
+        users[clientId].message = client.message;
+        if (!!client.piss)
+          users[clientId].piss = client.piss;
+      }
+    });
+    socket.on('piss', clientId => {
+      if (users[clientId] !== undefined)
+        pisses.push(clientId);
+    });
+    socket.on('user-disconnected', clientId => {
+      if (users[clientId] !== undefined) {
+        delete users[clientId];
+      }
+    });
+    socket.on('disconnect', () => {
+      alert('השרת נותק');
+      window.location.reload();
+    });
+
+    canvas.addEventListener('mousedown', e => {
+      socket.emit('move', e.pageX - canvas.offsetLeft, e.pageY - canvas.offsetTop);
+    });
+
+    messageInput.addEventListener('keydown', e => {
+      if (e.keyCode == 13) {
+        socket.emit('message', messageInput.value);
+        messageInput.value = '';
+      }
+    });
+
+    function draw() {
+      ctx.drawImage(bgImage, 0, 0);
+      ctx.drawImage(stand, 375, 45);
+
+      let sortUsers = [];
+      for (let i in users)
+        sortUsers.push(users[i]);
+
+      sortUsers.sort((a, b) => {
+        return a.y - b.y;
+      });
+
+      for (let i in sortUsers)
+        drawUser(sortUsers[i]);
+
+      ctx.drawImage(overlayImage, 0, 0);
+      ctx.drawImage(chatImage, 250, canvas.height - chatImage.height / 1.75, chatImage.width / 1.75, chatImage.height /
+        1.75);
+      window.requestAnimationFrame(draw);
+    }
+
+    function drawUser(user) {
+      const speed = 2;
+      let dir = '';
+
+      if (user.x < user.destX) {
+        user.x = Math.min(user.x + speed, user.destX);
+        dir = 'r';
+      } else if (user.x > user.destX) {
+        user.x = Math.max(user.x - speed, user.destX);
+        dir = 'l';
+      }
+
+      if (user.y < user.destY) {
+        user.y = Math.min(user.y + speed, user.destY);
+        dir += 'd';
+      } else if (user.y > user.destY) {
+        user.y = Math.max(user.y - speed, user.destY);
+        dir += 'u';
+      }
+
+      if (dir != '')
+        user.dir = dir;
+
+      ctx.textAlign = 'center';
+      ctx.font = '14px Arial';
+
+      ctx.save();
+      if (dir == '' && user.piss >= 1) {
+        let avatarWidth = Math.round(avatarPissImage.width / 24);
+        let avatarHeight = avatarPissImage.height;
+        ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight, 2);
+        ctx.drawImage(avatarPissImage, (Math.floor(user.piss) - 1) * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+        user.piss += 0.2;
+        if (Math.floor(user.piss) == 24)
+          user.piss = false;
+      } else {
+        user.piss = false;
+        let avatarWidth = Math.round(avatarImage.width / 5);
+        let avatarHeight = avatarImage.height;
+        ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight, 2);
+
+        if (user.dir == 'r' || user.dir == 'l') {
+          if (user.dir == 'r') {
+            ctx.translate(avatarWidth / 2, 0)
+            ctx.scale(-1, 1);
+            ctx.translate(-avatarWidth / 2, 0);
+          }
+          ctx.drawImage(avatarImage, 2 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+        } else if (user.dir == 'rd' || user.dir == 'ld') {
+          if (user.dir == 'rd') {
+            ctx.translate(avatarWidth / 2, 0)
+            ctx.scale(-1, 1);
+            ctx.translate(-avatarWidth / 2, 0)
+          }
+          ctx.drawImage(avatarImage, avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+        } else if (user.dir == 'ru' || user.dir == 'lu') {
+          if (user.dir == 'ru') {
+            ctx.translate(avatarWidth / 2, 0)
+            ctx.scale(-1, 1);
+            ctx.translate(-avatarWidth / 2, 0)
+          }
+          ctx.drawImage(avatarImage, 3 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+        } else if (user.dir == 'u')
+          ctx.drawImage(avatarImage, 4 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+        else
+          ctx.drawImage(avatarImage, 0, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+      }
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.fillText(user.name, user.x, user.y + 10);
+      ctx.closePath();
+
+      if (String(user.message).trim().length > 0) {
+        // Draw bubble message
+        let formattedBlob = getFormattedBlob(user.message);
+        let textWidth = formattedBlob.width;
+        let textHeight = formattedBlob.lines.length * 30;
+
+        ctx.save();
+        let bubble = bubbleImage;
+        if (user.admin)
+          bubble = bubbleRedImage;
+        else if (user.sayar)
+          bubble = bubbleSayarImage;
+
+        ctx.drawImage(bubble, user.x - 10 - textWidth / 2, user.y - 2 - avatarImage
+          .height - textHeight, textWidth + 20,
+          textHeight + 8);
+        ctx.fillStyle = user.sayar ? '#A41E0A' : '#000';
+        ctx.font = 'bold 14px Arial';
+        for (let i = 0; i < formattedBlob.lines.length; i++)
+          ctx.fillText(formattedBlob.lines[i], user.x, user.y - textHeight - avatarImage.height + 17 + 21 * i);
+        ctx.restore();
+      }
+
+      if (!!user.admin)
+        ctx.drawImage(starImage, user.x - 13, user.y + 15);
+    }
+
+    function getFormattedBlob(message) {
+      let lines = [];
+      let textWidth = 0;
+      let maxWidth = 180;
+      let maxLen = 75;
+      let currLine = 0;
+
+      if (message.trim().length > maxLen)
+        message = message.substr(0, maxLen) + "...";
+
+      let words = message.trim().split(' ');
+
+      for (let i in words) {
+        for (let j in words[i]) {
+          if (!lines[currLine])
+            lines[currLine] = words[i][j];
+          else
+            lines[currLine] += words[i][j];
+          let currWidth = ctx.measureText(lines[currLine]).width;
+          textWidth = Math.max(textWidth, currWidth);
+          if (currWidth >= maxWidth)
+            currLine++;
+        }
+        if (words[parseInt(i) + 1] && ctx.measureText(lines[currLine] + ' ' + words[parseInt(i) + 1]).width >= maxWidth)
+          currLine++;
+        else if (words[parseInt(i) + 1])
+          lines[currLine] += ' ';
+      }
+
+      return {
+        lines: lines,
+        width: textWidth
+      };
+    }
+
+    function login() {
+      document.getElementById('login').classList.remove('show');
+      document.getElementById('loading').classList.add('show');
+      socket.emit('login', document.getElementById('nickname').value);
+    }
+  </script>
+</body>
+
+</html>
