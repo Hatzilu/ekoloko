@@ -168,8 +168,10 @@
     });
 
     function draw() {
-      ctx.drawImage(bgImage, 0, 0);
-      ctx.drawImage(stand, 375, 45);
+      if (bgImage.complete)
+        ctx.drawImage(bgImage, 0, 0);
+      if (stand.complete)
+        ctx.drawImage(stand, 375, 45);
 
       let sortUsers = [];
       for (let i in users)
@@ -182,8 +184,10 @@
       for (let i in sortUsers)
         drawUser(sortUsers[i]);
 
-      ctx.drawImage(overlayImage, 0, 0);
-      ctx.drawImage(chatImage, 250, canvas.height - chatImage.height / 1.75, chatImage.width / 1.75, chatImage.height /
+      if (overlayImage.complete)
+        ctx.drawImage(overlayImage, 0, 0);
+      if (chatImage.complete)
+        ctx.drawImage(chatImage, 250, canvas.height - chatImage.height / 1.75, chatImage.width / 1.75, chatImage.height /
         1.75);
       window.requestAnimationFrame(draw);
     }
@@ -219,7 +223,8 @@
         let avatarWidth = Math.round(avatarPissImage.width / 24);
         let avatarHeight = avatarPissImage.height;
         ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight, 2);
-        ctx.drawImage(avatarPissImage, (Math.floor(user.piss) - 1) * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+        if (avatarPissImage.complete)
+          ctx.drawImage(avatarPissImage, (Math.floor(user.piss) - 1) * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
         user.piss += 0.2;
         if (Math.floor(user.piss) == 24)
           user.piss = false;
@@ -229,31 +234,36 @@
         let avatarHeight = avatarImage.height;
         ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight, 2);
 
-        if (user.dir == 'r' || user.dir == 'l') {
-          if (user.dir == 'r') {
-            ctx.translate(avatarWidth / 2, 0)
-            ctx.scale(-1, 1);
-            ctx.translate(-avatarWidth / 2, 0);
-          }
-          ctx.drawImage(avatarImage, 2 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
-        } else if (user.dir == 'rd' || user.dir == 'ld') {
-          if (user.dir == 'rd') {
-            ctx.translate(avatarWidth / 2, 0)
-            ctx.scale(-1, 1);
-            ctx.translate(-avatarWidth / 2, 0)
-          }
-          ctx.drawImage(avatarImage, avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
-        } else if (user.dir == 'ru' || user.dir == 'lu') {
-          if (user.dir == 'ru') {
-            ctx.translate(avatarWidth / 2, 0)
-            ctx.scale(-1, 1);
-            ctx.translate(-avatarWidth / 2, 0)
-          }
-          ctx.drawImage(avatarImage, 3 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
-        } else if (user.dir == 'u')
-          ctx.drawImage(avatarImage, 4 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
-        else
-          ctx.drawImage(avatarImage, 0, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+        if (avatarImage.complete) {
+          if (user.dir == 'r' || user.dir == 'l') {
+            if (user.dir == 'r') {
+              ctx.translate(avatarWidth / 2, 0)
+              ctx.scale(-1, 1);
+              ctx.translate(-avatarWidth / 2, 0);
+            }
+            if (avatarImage.complete)
+              ctx.drawImage(avatarImage, 2 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+          } else if (user.dir == 'rd' || user.dir == 'ld') {
+            if (user.dir == 'rd') {
+              ctx.translate(avatarWidth / 2, 0)
+              ctx.scale(-1, 1);
+              ctx.translate(-avatarWidth / 2, 0)
+            }
+            if (avatarImage.complete)
+              ctx.drawImage(avatarImage, avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+          } else if (user.dir == 'ru' || user.dir == 'lu') {
+            if (user.dir == 'ru') {
+              ctx.translate(avatarWidth / 2, 0)
+              ctx.scale(-1, 1);
+              ctx.translate(-avatarWidth / 2, 0)
+            }
+            if (avatarImage.complete)
+              ctx.drawImage(avatarImage, 3 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+          } else if (user.dir == 'u')
+            ctx.drawImage(avatarImage, 4 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+          else
+            ctx.drawImage(avatarImage, 0, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+        }
       }
       ctx.restore();
 
@@ -274,9 +284,10 @@
         else if (user.sayar)
           bubble = bubbleSayarImage;
 
-        ctx.drawImage(bubble, user.x - 10 - textWidth / 2, user.y - 2 - avatarImage
-          .height - textHeight, textWidth + 20,
-          textHeight + 8);
+        if (bubble.complete)
+          ctx.drawImage(bubble, user.x - 10 - textWidth / 2, user.y - 2 - avatarImage
+            .height - textHeight, textWidth + 20,
+            textHeight + 8);
         ctx.fillStyle = user.sayar ? '#A41E0A' : '#000';
         ctx.font = 'bold 14px Arial';
         for (let i = 0; i < formattedBlob.lines.length; i++)
@@ -284,7 +295,7 @@
         ctx.restore();
       }
 
-      if (!!user.admin)
+      if (!!user.admin && starImage.complete)
         ctx.drawImage(starImage, user.x - 13, user.y + 15);
     }
 
