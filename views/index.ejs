@@ -168,27 +168,31 @@
     });
 
     function draw() {
-      if (bgImage.complete)
-        ctx.drawImage(bgImage, 0, 0);
-      if (stand.complete)
-        ctx.drawImage(stand, 375, 45);
+      if (bgImage.complete && overlayImage.complete && avatarImage.complete
+      && avatarPissImage.complete && bubbleImage.complete && bubbleRedImage.complete
+      && bubbleSayerImage.complete && chatImage.complete && starImage.complete && stand.complete) {
+        if (bgImage.complete)
+          ctx.drawImage(bgImage, 0, 0);
+        if (stand.complete)
+          ctx.drawImage(stand, 375, 45);
 
-      let sortUsers = [];
-      for (let i in users)
-        sortUsers.push(users[i]);
+        let sortUsers = [];
+        for (let i in users)
+          sortUsers.push(users[i]);
 
-      sortUsers.sort((a, b) => {
-        return a.y - b.y;
-      });
+        sortUsers.sort((a, b) => {
+          return a.y - b.y;
+        });
 
-      for (let i in sortUsers)
-        drawUser(sortUsers[i]);
+        for (let i in sortUsers)
+          drawUser(sortUsers[i]);
 
-      if (overlayImage.complete)
-        ctx.drawImage(overlayImage, 0, 0);
-      if (chatImage.complete)
-        ctx.drawImage(chatImage, 250, canvas.height - chatImage.height / 1.75, chatImage.width / 1.75, chatImage.height /
-        1.75);
+        if (overlayImage.complete)
+          ctx.drawImage(overlayImage, 0, 0);
+        if (chatImage.complete)
+          ctx.drawImage(chatImage, 250, canvas.height - chatImage.height / 1.75, chatImage.width / 1.75, chatImage.height /
+          1.75);
+      }
       window.requestAnimationFrame(draw);
     }
 
@@ -220,49 +224,52 @@
 
       ctx.save();
       if (dir == '' && user.piss >= 1) {
-        let avatarWidth = Math.round(avatarPissImage.width / 24);
-        let avatarHeight = avatarPissImage.height;
-        ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight, 2);
-        if (avatarPissImage.complete)
+        if (avatarPissImage.complete) {
+          let avatarWidth = Math.round(avatarPissImage.width / 24);
+          let avatarHeight = avatarPissImage.height;
+          ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight, 2);
           ctx.drawImage(avatarPissImage, (Math.floor(user.piss) - 1) * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
-        user.piss += 0.2;
-        if (Math.floor(user.piss) == 24)
-          user.piss = false;
+          user.piss += 0.2;
+          if (Math.floor(user.piss) == 24)
+            user.piss = false;
+        }
       } else {
-        user.piss = false;
-        let avatarWidth = Math.round(avatarImage.width / 5);
-        let avatarHeight = avatarImage.height;
-        ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight, 2);
-
         if (avatarImage.complete) {
-          if (user.dir == 'r' || user.dir == 'l') {
-            if (user.dir == 'r') {
-              ctx.translate(avatarWidth / 2, 0)
-              ctx.scale(-1, 1);
-              ctx.translate(-avatarWidth / 2, 0);
-            }
-            if (avatarImage.complete)
-              ctx.drawImage(avatarImage, 2 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
-          } else if (user.dir == 'rd' || user.dir == 'ld') {
-            if (user.dir == 'rd') {
-              ctx.translate(avatarWidth / 2, 0)
-              ctx.scale(-1, 1);
-              ctx.translate(-avatarWidth / 2, 0)
-            }
-            if (avatarImage.complete)
-              ctx.drawImage(avatarImage, avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
-          } else if (user.dir == 'ru' || user.dir == 'lu') {
-            if (user.dir == 'ru') {
-              ctx.translate(avatarWidth / 2, 0)
-              ctx.scale(-1, 1);
-              ctx.translate(-avatarWidth / 2, 0)
-            }
-            if (avatarImage.complete)
-              ctx.drawImage(avatarImage, 3 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
-          } else if (user.dir == 'u')
-            ctx.drawImage(avatarImage, 4 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
-          else
-            ctx.drawImage(avatarImage, 0, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+          user.piss = false;
+          let avatarWidth = Math.round(avatarImage.width / 5);
+          let avatarHeight = avatarImage.height;
+          ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight, 2);
+
+          if (avatarImage.complete) {
+            if (user.dir == 'r' || user.dir == 'l') {
+              if (user.dir == 'r') {
+                ctx.translate(avatarWidth / 2, 0)
+                ctx.scale(-1, 1);
+                ctx.translate(-avatarWidth / 2, 0);
+              }
+              if (avatarImage.complete)
+                ctx.drawImage(avatarImage, 2 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+            } else if (user.dir == 'rd' || user.dir == 'ld') {
+              if (user.dir == 'rd') {
+                ctx.translate(avatarWidth / 2, 0)
+                ctx.scale(-1, 1);
+                ctx.translate(-avatarWidth / 2, 0)
+              }
+              if (avatarImage.complete)
+                ctx.drawImage(avatarImage, avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+            } else if (user.dir == 'ru' || user.dir == 'lu') {
+              if (user.dir == 'ru') {
+                ctx.translate(avatarWidth / 2, 0)
+                ctx.scale(-1, 1);
+                ctx.translate(-avatarWidth / 2, 0)
+              }
+              if (avatarImage.complete)
+                ctx.drawImage(avatarImage, 3 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+            } else if (user.dir == 'u')
+              ctx.drawImage(avatarImage, 4 * avatarWidth, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+            else
+              ctx.drawImage(avatarImage, 0, 0, avatarWidth, avatarHeight, 0, 0, avatarWidth, avatarHeight);
+          }
         }
       }
       ctx.restore();
