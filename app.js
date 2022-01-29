@@ -4,7 +4,7 @@ const {
 const express = require('express')
 const app = express()
 const http = require('http').Server(app);
-const port = 80
+const port = 80;
 const io = require('socket.io')(http);
 const fetch = require('node-fetch');
 
@@ -23,7 +23,7 @@ let ips = {};
 let bans = ['77.127.26.240', '23.227.142.146', '209.205.218.45', '23.227.140.172', '23.227.142.230', '209.205.217.126', '23.227.142.228', '23.227.142.218', '195.181.160.247', '185.220.101.16', '185.191.126.240', '198.251.89.198', '195.37.209.9', '46.19.141.82', '51.81.82.226', '109.70.100.37', '185.220.100.250', '142.44.133.80'];
 
 io.on('connection', client => {
-  if (client.handshake.address == '141.226.236.144' || bans.findIndex(o => client.handshake.address.indexOf(o) != -1) == -1 && Object.values(ips).indexOf(client.handshake.address) == -1 && Object.keys(users).indexOf(client.id) == -1) {
+  if (bans.findIndex(o => client.handshake.address.indexOf(o) != -1) == -1 && Object.values(ips).indexOf(client.handshake.address) == -1 && Object.keys(users).indexOf(client.id) == -1) {
     ips[client.id] = client.handshake.address;
     client.on('login', name => {
       if (name != undefined) {

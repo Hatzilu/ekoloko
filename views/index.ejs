@@ -238,7 +238,7 @@
           user.piss = false;
           let avatarWidth = Math.round(avatarImage.width / 5);
           let avatarHeight = avatarImage.height;
-          ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight, 2);
+          ctx.translate(user.x - avatarWidth / 2, user.y - avatarHeight);
 
           if (avatarImage.complete) {
             if (user.dir == 'r' || user.dir == 'l') {
