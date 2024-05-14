@@ -4,7 +4,7 @@ const nextConfig = {
         return [
             {
                 // matching all API routes
-                source: "/api/socket",
+                source: "/socket.io",
                 headers: [
                     { key: "Access-Control-Allow-Credentials", value: "true" },
                     { key: "Access-Control-Allow-Origin", value: 'localhost:3000' }, // replace this your actual origin
